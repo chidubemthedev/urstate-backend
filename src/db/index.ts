@@ -1,7 +1,7 @@
 import { drizzle } from "drizzle-orm/neon-serverless";
 import { Pool, neonConfig } from "@neondatabase/serverless";
 import ws from "ws";
-import * as schema from "./schema";
+import * as schema from "./schema.js";
 import "dotenv/config";
 
 // 1. Configure Neon to use the 'ws' package (Required for Node.js apps)
