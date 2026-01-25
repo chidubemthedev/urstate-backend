@@ -19,13 +19,17 @@ export const auth = betterAuth({
         await resend.emails.send({
           from: process.env.EMAIL_FROM || "onboarding@resend.dev",
           to: user.email,
-          subject: "Reset your password",
+          subject: "Reset your UrState password",
           // Design email template later
           html: `
-                    <h1>Reset your password</h1>
-                    <p>Click the link below to reset your password. This link expires in 1 hour.</p>
-                    <a href="${url}" style="padding: 10px 20px; background: blue; color: white; text-decoration: none; border-radius: 5px;">Reset Password</a>
-                    <p>If you didn't request this, please ignore this email.</p>
+                   <div style="font-family: sans-serif; padding: 20px;">
+                    <h2>Password Reset</h2>
+                    <p>Hello ${user.name},</p>
+                    <p>Click the button below to reset your password.</p>
+                    <a href="${url}" style="padding: 10px 20px; background: #000; color: #fff; text-decoration: none; border-radius: 5px;">
+                        Reset Password
+                    </a>
+                </div>
                 `,
         });
         console.log("Email sent successfully!");
@@ -39,11 +43,13 @@ export const auth = betterAuth({
       await resend.emails.send({
         from: process.env.EMAIL_FROM || "onboarding@resend.dev",
         to: user.email,
-        subject: "Verify your email",
+        subject: "Welcome to UrState!",
         html: `
-                <h1>Welcome, ${user.name}!</h1>
-                <p>Please verify your email to continue.</p>
-                <a href="${url}">Verify Email</a>
+                <div style="font-family: sans-serif; padding: 20px;">
+                    <h2>Verify your Email</h2>
+                    <p>Welcome ${user.name}! Please verify your email to continue.</p>
+                    <a href="${url}" style="color: blue;">Verify my account</a>
+                </div>
             `,
       });
     },
