@@ -1,0 +1,44 @@
+{
+  "name": "urstate-backend",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/chidubemthedev/urstate-backend#readme",
+  "bugs": {
+    "url": "https://github.com/chidubemthedev/urstate-backend/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chidubemthedev/urstate-backend.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "tsx --watch --env-file=.env src/index.ts",
+    "build": "tsc && tsc-alias",
+    "db:push": "drizzle-kit push",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.0.2",
+    "better-auth": "^1.4.17",
+    "cors": "^2.8.6",
+    "dotenv": "^17.2.3",
+    "drizzle-orm": "^0.45.1",
+    "express": "^5.2.1",
+    "resend": "^6.8.0",
+    "ws": "^8.19.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/ws": "^8.18.1",
+    "drizzle-kit": "^0.31.8",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}
