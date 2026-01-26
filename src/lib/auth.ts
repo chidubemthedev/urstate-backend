@@ -60,5 +60,10 @@ export const auth = betterAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     },
   },
-  trustedOrigins: ["http://localhost:3000"],
+  trustedOrigins: [
+    "http://localhost:3000",
+    "http://www.dev.urstate.com.ng",
+    "https://www.urstate-git-development-chidubemthedevs-projects.vercel.app",
+    "https://urstate-q8lx2dj7s-chidubemthedevs-projects.vercel.app",
+  ],
 });
