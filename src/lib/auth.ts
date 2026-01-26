@@ -5,6 +5,9 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+// Helper to ensure we point to the frontend
+const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg",
@@ -12,21 +15,23 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
-    async sendResetPassword({ user, url }) {
+
+    async sendResetPassword({ user, url, token }) {
       console.log("Sending reset email to:", user.email);
+
+      const resetLink = `${frontendUrl}/reset-password?token=${token}`;
 
       try {
         await resend.emails.send({
           from: process.env.EMAIL_FROM || "onboarding@resend.dev",
           to: user.email,
           subject: "Reset your UrState password",
-          // Design email template later
           html: `
                    <div style="font-family: sans-serif; padding: 20px;">
                     <h2>Password Reset</h2>
                     <p>Hello ${user.name},</p>
                     <p>Click the button below to reset your password.</p>
-                    <a href="${url}" style="padding: 10px 20px; background: #000; color: #fff; text-decoration: none; border-radius: 5px;">
+                    <a href="${resetLink}" style="padding: 10px 20px; background: #000; color: #fff; text-decoration: none; border-radius: 5px;">
                         Reset Password
                     </a>
                 </div>
@@ -39,7 +44,9 @@ export const auth = betterAuth({
     },
   },
   emailVerification: {
-    sendVerificationEmail: async ({ user, url, token }, request) => {
+    async sendVerificationEmail({ user, url, token }, request) {
+      const verifyLink = `${frontendUrl}/verify-email?token=${token}`;
+
       await resend.emails.send({
         from: process.env.EMAIL_FROM || "onboarding@resend.dev",
         to: user.email,
@@ -48,7 +55,7 @@ export const auth = betterAuth({
                 <div style="font-family: sans-serif; padding: 20px;">
                     <h2>Verify your Email</h2>
                     <p>Welcome ${user.name}! Please verify your email to continue.</p>
-                    <a href="${url}" style="color: blue;">Verify my account</a>
+                    <a href="${verifyLink}" style="color: blue;">Verify my account</a>
                 </div>
             `,
       });
