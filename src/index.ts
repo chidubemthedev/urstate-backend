@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import { toNodeHandler, fromNodeHeaders } from "better-auth/node";
 import { auth } from "./lib/auth.js";
+import userRoutes from "./routes/user.routes.js";
 
 const app = express();
 const PORT = 3000;
@@ -26,6 +27,10 @@ app.all("/api/auth/*path", toNodeHandler(auth));
 
 // 3. Standard JSON middleware for your OTHER routes
 app.use(express.json());
+
+// Mount User Routes
+// This prefixes all routes in that file with /api/user
+app.use("/api/user", userRoutes);
 
 // 4. Example Protected Route
 app.get("/api/dashboard", async (req, res) => {

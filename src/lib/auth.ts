@@ -12,6 +12,17 @@ export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg",
   }),
+
+  user: {
+    additionalFields: {
+      role: {
+        type: "string",
+        required: false, // Optional because old users might not have it
+        input: true, // Allows frontend to send this field
+      },
+    },
+  },
+
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
@@ -65,6 +76,15 @@ export const auth = betterAuth({
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      // 2. Handle Role for Google Signup
+      mapProfileToUser: async (profile) => {
+        return {
+          role: "renter", // DEFAULT ROLE if not specified
+          // Note: Sending dynamic roles via OAuth is complex.
+          // Usually, you default to 'renter' and let them switch,
+          // OR you ask them to select a role *after* Google sign-in.
+        };
+      },
     },
   },
   trustedOrigins: [
