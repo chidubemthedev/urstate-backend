@@ -6,9 +6,10 @@ import { Resend } from "resend";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Helper to ensure we point to the frontend
-const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+const frontendUrl = process.env.FRONTEND_URL || "http://localhost:4000";
 
 export const auth = betterAuth({
+  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
   database: drizzleAdapter(db, {
     provider: "pg",
   }),
@@ -30,7 +31,7 @@ export const auth = betterAuth({
     async sendResetPassword({ user, url, token }) {
       console.log("Sending reset email to:", user.email);
 
-      const resetLink = `${frontendUrl}/reset-password?token=${token}`;
+      const resetLink = `${frontendUrl}/auth/reset-password?token=${token}`;
 
       try {
         await resend.emails.send({
@@ -56,7 +57,7 @@ export const auth = betterAuth({
   },
   emailVerification: {
     async sendVerificationEmail({ user, url, token }, request) {
-      const verifyLink = `${frontendUrl}/verify-email?token=${token}`;
+      const verifyLink = `${frontendUrl}/auth/verify-email?token=${token}`;
 
       await resend.emails.send({
         from: process.env.EMAIL_FROM || "onboarding@resend.dev",
@@ -71,24 +72,22 @@ export const auth = betterAuth({
             `,
       });
     },
+    autoSignInAfterVerification: true,
   },
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
       // 2. Handle Role for Google Signup
-      mapProfileToUser: async (profile) => {
-        return {
-          role: "renter", // DEFAULT ROLE if not specified
-          // Note: Sending dynamic roles via OAuth is complex.
-          // Usually, you default to 'renter' and let them switch,
-          // OR you ask them to select a role *after* Google sign-in.
-        };
-      },
+      // mapProfileToUser: async (profile) => {
+      //   return {
+      //     role: "renter",
+      //   };
+      // },
     },
   },
   trustedOrigins: [
-    "http://localhost:3000",
+    "http://localhost:4000",
     "http://www.dev.urstate.com.ng",
     "https://www.urstate-git-development-chidubemthedevs-projects.vercel.app",
     "https://urstate-q8lx2dj7s-chidubemthedevs-projects.vercel.app",
