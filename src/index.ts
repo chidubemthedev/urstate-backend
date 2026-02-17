@@ -23,7 +23,7 @@ app.use(
   }),
 );
 
-app.options("*", cors());
+app.options("/*", cors());
 
 // 2. Mount Better Auth Handler
 // NOTE: Must be before express.json() for body parsing reasons in some setups
