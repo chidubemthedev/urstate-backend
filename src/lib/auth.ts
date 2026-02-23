@@ -31,7 +31,7 @@ export const auth = betterAuth({
     async sendResetPassword({ user, url, token }) {
       console.log("Sending reset email to:", user.email);
 
-      const resetLink = `${frontendUrl}/auth/reset-password?token=${token}`;
+      const resetLink = `${frontendUrl}/reset-password?token=${token}`;
 
       try {
         await resend.emails.send({
@@ -57,7 +57,7 @@ export const auth = betterAuth({
   },
   emailVerification: {
     async sendVerificationEmail({ user, url, token }, request) {
-      const verifyLink = `${frontendUrl}/auth/verify-email?token=${token}`;
+      const verifyLink = `${frontendUrl}/verify-email?token=${token}`;
 
       await resend.emails.send({
         from: process.env.EMAIL_FROM || "onboarding@resend.dev",
