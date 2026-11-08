@@ -2,6 +2,22 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "../db/index.js";
 import { Resend } from "resend";
+import { APIError } from "better-auth/api";
+import { eq } from "drizzle-orm";
+import { user as userTable } from "../db/schema.js";
+import { allowedOrigins } from "../config/origins.js";
+
+/** Roles a person can pick for themselves. "admin" is never self-assignable. */
+export const SELF_ASSIGNABLE_ROLES = ["renter", "owner"] as const;
+
+const assertSelfAssignableRole = (role: unknown) => {
+  if (role === undefined || role === null || role === "") return;
+  if (!SELF_ASSIGNABLE_ROLES.includes(role as never)) {
+    throw new APIError("BAD_REQUEST", {
+      message: "Role must be renter or owner.",
+    });
+  }
+};
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -19,7 +35,42 @@ export const auth = betterAuth({
       role: {
         type: "string",
         required: false, // Optional because old users might not have it
-        input: true, // Allows frontend to send this field
+        input: true, // Allows frontend to send this field (validated below)
+      },
+    },
+  },
+
+  databaseHooks: {
+    user: {
+      create: {
+        // `role` accepts client input, so block anyone signing up as admin.
+        before: async (data) => {
+          assertSelfAssignableRole(data.role);
+        },
+      },
+      update: {
+        // Same guard for authClient.updateUser({ role }).
+        // Admin promotion happens through the seed script, not this API.
+        before: async (data) => {
+          if ("role" in data) assertSelfAssignableRole(data.role);
+        },
+      },
+    },
+    session: {
+      create: {
+        // Suspended accounts cannot start a new session.
+        before: async (session) => {
+          const [found] = await db
+            .select({ suspended: userTable.suspended })
+            .from(userTable)
+            .where(eq(userTable.id, session.userId));
+          if (found?.suspended) {
+            throw new APIError("FORBIDDEN", {
+              message:
+                "This account is suspended. Contact UrState support for help.",
+            });
+          }
+        },
       },
     },
   },
@@ -86,12 +137,5 @@ export const auth = betterAuth({
       // },
     },
   },
-  trustedOrigins: [
-    "http://localhost:4000",
-    "http://www.dev.urstate.com.ng",
-    "https://dev.urstate.com.ng",
-    "https://www.dev.urstate.com.ng",
-    "https://www.urstate-git-development-chidubemthedevs-projects.vercel.app",
-    "https://urstate-q8lx2dj7s-chidubemthedevs-projects.vercel.app",
-  ],
+  trustedOrigins: allowedOrigins,
 });
